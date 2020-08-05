@@ -39,11 +39,12 @@ async def on_message(message):
         pass
 
     else:
-        if message.guild.voice_client:
+        if msgclient:
             print(message.content)
             #creat_WAV(message.content)
+            await ctx.message.attachments[0].save("output.wav")
             source = discord.FFmpegPCMAudio("output.wav")
-            message.guild.voice_client.play(source)
+            msgclient.play(source)
         else:
             pass
     await client.process_commands(message)
