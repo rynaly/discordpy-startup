@@ -1,74 +1,53 @@
+import discord
 from discord.ext import commands
+import asyncio
 import os
-import traceback
+import subprocess
+import ffmpeg
+from voice_generator import creat_WAV
 
-bot = commands.Bot(command_prefix='/')
+client = commands.Bot(command_prefix='.')
 token = os.environ['DISCORD_BOT_TOKEN']
+voice_client = None
 
-if not discord.opus.is_loaded():
-    discord.opus.load_opus("heroku-buildpack-libopus")
 
-@bot.event
-async def on_message(message):
-    try:
-        if message.author.bot:
-            return
-        await bot.process_commands(message)
-    except Exception:
-        await message.channel.send(f'\n{traceback.format_exc()}\n')
-   
+@client.event
+async def on_ready():
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send('pong')
 
-    
-@bot.command(aliases=["connect","summon"]) #connectやsummonでも呼び出せる
+@client.command()
 async def join(ctx):
-    """Botをボイスチャンネルに入室させます。"""
-    voice_state = ctx.author.voice
+    print('#voicechannelを取得')
+    vc = ctx.author.voice.channel
+    print('#voicechannelに接続')
+    await vc.connect()
+    await ctx.send('よろしく')
 
-    if (not voice_state) or (not voice_state.channel):
-        await ctx.send("先にボイスチャンネルに入っている必要があります。")
-        return
+@client.command()
+async def bye(ctx):
+    print('#切断')
+    await ctx.voice_client.disconnect()
+    await ctx.send('さよなら')
 
-    channel = voice_state.channel
+@client.event
+async def on_message(message):
+    msgclient = message.guild.voice_client
+    if message.content.startswith('.'):
+        pass
 
-    await channel.connect()
-    print("connected to:",channel.name)
-
-
-@bot.command(aliases=["disconnect","bye"])
-async def leave(ctx):
-    """Botをボイスチャンネルから切断します。"""
-    voice_client = ctx.message.guild.voice_client
-
-    if not voice_client:
-        await ctx.send("Botはこのサーバーのボイスチャンネルに参加していません。")
-        return
-
-    await voice_client.disconnect()
-    await ctx.send("ボイスチャンネルから切断しました。")
+    else:
+        if message.guild.voice_client:
+            print(message.content)
+            creat_WAV(message.content)
+            source = discord.FFmpegPCMAudio(executable="C:\\open_jtalk\\bin\\ffmpeg\\bin\\ffmpeg.exe",source="output.wav")
+            message.guild.voice_client.play(source)
+        else:
+            pass
+    await client.process_commands(message)
 
 
-@bot.command()
-async def play(ctx):
-    """指定された音声ファイルを流します。"""
-    voice_client = ctx.message.guild.voice_client
-
-    if not voice_client:
-        await ctx.send("Botはこのサーバーのボイスチャンネルに参加していません。")
-        return
-
-    if not ctx.message.attachments:
-        await ctx.send("ファイルが添付されていません。")
-        return
-
-    await ctx.message.attachments[0].save("output.wav")
-
-    ffmpeg_audio_source = discord.FFmpegPCMAudio("output.wav")
-    voice_client.play(ffmpeg_audio_source)
-
-    await ctx.send("再生しました。")
-    
 bot.run(token)
