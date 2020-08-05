@@ -7,7 +7,7 @@ token = os.environ['DISCORD_BOT_TOKEN']
 
 
 @bot.event
-async def on_message(merssage):
+async def on_message(message):
     try:
         if message.author.bot:
             return
@@ -16,7 +16,7 @@ async def on_message(merssage):
         await message.channel.send(f'\n{traceback.format_exc()}\n')
    
 
-@bot.commands
+@bot.command()
 async def ping(ctx):
     await ctx.send('pong')
 
