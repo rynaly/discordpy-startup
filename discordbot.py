@@ -57,8 +57,8 @@ async def play(ctx):
 
     await ctx.send("再生しました。")
     
-@bot.commands
+@bot.command()
 async def ping(ctx):
-    awati ctx.send('ping')
+    await ctx.send('ping')
 
 bot.run(token)
