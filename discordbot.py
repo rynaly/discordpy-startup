@@ -3,7 +3,6 @@ from discord.ext import commands
 import asyncio
 import os
 import subprocess
-import ffmpeg
 from voice_generator import creat_WAV
 
 client = commands.Bot(command_prefix='.')
