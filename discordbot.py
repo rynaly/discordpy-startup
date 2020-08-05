@@ -41,8 +41,8 @@ async def on_message(message):
     else:
         if message.guild.voice_client:
             print(message.content)
-            creat_WAV(message.content)
-            source = discord.FFmpegPCMAudio(executable="C:\\open_jtalk\\bin\\ffmpeg\\bin\\ffmpeg.exe",source="output.wav")
+            #creat_WAV(message.content)
+            source = discord.FFmpegPCMAudio("output.wav")
             message.guild.voice_client.play(source)
         else:
             pass
