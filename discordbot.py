@@ -49,4 +49,4 @@ async def on_message(message):
     await client.process_commands(message)
 
 
-bot.run(token)
+client.run(token)
